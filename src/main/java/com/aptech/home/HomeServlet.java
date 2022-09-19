@@ -13,4 +13,5 @@ public class HomeServlet extends HttpServlet {
         RequestDispatcher requestDispatcher = this.getServletContext().getRequestDispatcher("/views/home/index.jsp");
         requestDispatcher.forward(req, resp);
     }
+
 }

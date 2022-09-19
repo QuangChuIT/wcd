@@ -25,6 +25,7 @@
         <servlet-name>HomeServlet</servlet-name>
         <servlet-class>com.aptech.home.HomeServlet</servlet-class>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login</url-pattern>
