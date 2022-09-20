@@ -17,7 +17,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <junit.version>4.13.2</junit.version>
-    <servlet-api.version>2.5</servlet-api.version>
+    <jakarta.servlet-api>5.0.0</jakarta.servlet-api>
     <mysql-connector-java.version>5.1.47</mysql-connector-java.version>
   </properties>
 
@@ -28,11 +28,11 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-
+    <!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${servlet-api.version}</version>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet-api}</version>
       <scope>provided</scope>
     </dependency>
 
