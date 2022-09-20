@@ -2,13 +2,9 @@ package com.aptech.authen;
 
 import com.aptech.user.User;
 import com.aptech.user.UserDao;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class LoginServlet extends HttpServlet {
