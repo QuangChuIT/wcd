@@ -1,11 +1,15 @@
 package com.aptech.user;
 
 public class User {
+    private Long id;
     private String username;
     private String password;
     private String mobile;
     private String email;
     private String address;
+
+    public User() {
+    }
 
     public User(String username, String password, String mobile, String email, String address) {
         this.username = username;
@@ -53,5 +57,25 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", email='" + email + '\'' +
+                ", address='" + address + '\'' +
+                '}';
     }
 }

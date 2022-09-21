@@ -1,5 +1,10 @@
+<%@ page import="com.aptech.user.User" %>
+<%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="true" %>
 <%@ taglib prefix="at" tagdir="/WEB-INF/tags" %>
+<%
+    List<User> userList = (List<User>) request.getAttribute("users");
+%>
 <at:templateAdmin>
     <jsp:attribute name="content">
         <!-- Page Heading -->
