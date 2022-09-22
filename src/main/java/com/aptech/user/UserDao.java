@@ -49,7 +49,7 @@ public class UserDao implements GenericDao<User> {
             }
             DatabaseUtil.getInstance().closeConnection(connection);
             DatabaseUtil.getInstance().closeObject(resultSet);
-            DatabaseUtil.getInstance().closeObject(resultSet);
+            DatabaseUtil.getInstance().closeObject(statement);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,7 +58,35 @@ public class UserDao implements GenericDao<User> {
 
     @Override
     public Optional<User> get(long id) {
-        return Optional.empty();
+        String sql = "select * from user where id = ?";
+        User user = null;
+        try {
+            Connection connection = DatabaseUtil.getInstance().getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                user = new User();
+                String username = rs.getString("username");
+                String password = rs.getString("password");
+                String mobile = rs.getNString("mobile");
+                String email = rs.getString("email");
+                String address = rs.getString("address");
+                user.setId(id);
+                user.setUsername(username);
+                user.setAddress(address);
+                user.setEmail(email);
+                user.setPassword(password);
+                user.setMobile(mobile);
+            }
+            DatabaseUtil.getInstance().closeConnection(connection);
+            DatabaseUtil.getInstance().closeObject(rs);
+            DatabaseUtil.getInstance().closeObject(stmt);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Optional.ofNullable(user);
     }
 
     @Override
