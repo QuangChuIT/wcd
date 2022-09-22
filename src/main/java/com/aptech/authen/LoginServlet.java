@@ -2,14 +2,16 @@ package com.aptech.authen;
 
 import com.aptech.user.User;
 import com.aptech.user.UserDao;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
 public class LoginServlet extends HttpServlet {
-
-    private UserDao userDao = new UserDao();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -22,7 +24,7 @@ public class LoginServlet extends HttpServlet {
         String userName = req.getParameter("username");
         String password = req.getParameter("password");
 
-        User user = userDao.findUser(userName, password);
+        User user = UserDao.getInstance().findUser(userName, password);
         Cookie cookie = new Cookie("UserLogin", user.getUsername());
         cookie.setMaxAge(60);
         cookie.setDomain("localhost");

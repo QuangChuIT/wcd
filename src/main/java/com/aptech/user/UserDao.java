@@ -33,7 +33,7 @@ public class UserDao implements GenericDao<User> {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
-                Long id = resultSet.getLong(0);
+                Long id = resultSet.getLong("id");
                 String username = resultSet.getString(1);
                 String password = resultSet.getString(2);
                 String mobile = resultSet.getNString(3);
