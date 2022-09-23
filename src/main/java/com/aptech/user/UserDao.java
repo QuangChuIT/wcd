@@ -40,7 +40,7 @@ public class UserDao implements GenericDao<User> {
                 Long id = resultSet.getLong("id");
                 String username = resultSet.getString(1);
                 String password = resultSet.getString(2);
-                String mobile = resultSet.getNString(3);
+                String mobile = resultSet.getString(3);
                 String email = resultSet.getString(4);
                 String address = resultSet.getString(5);
                 user.setId(id);
