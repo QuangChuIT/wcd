@@ -22,7 +22,7 @@ public class UserServlet extends HttpServlet {
     }
 
     protected void doGetList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<User> users = UserDao.getInstance().getAll();
+        List<User> users = UserDao.getInstance().findAllUsers();
         request.setAttribute("users", users);
         request.getRequestDispatcher("/views/user/users.jsp").forward(request, response);
     }
