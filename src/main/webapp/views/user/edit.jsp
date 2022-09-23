@@ -3,21 +3,57 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <at:templateAdmin>
     <jsp:attribute name="content">
-        <form>
-            <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <input type="email" class="form-control" value="${requestScope.user.username}" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Cập nhật thông tin tài khoản</h6>
             </div>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+            <div class="card-body">
+                <form action="/admin/user/index?action=update" method="post" onsubmit="return validate()">
+                    <input type="hidden" value="${requestScope.user.id}" name="userId"/>
+                    <div class="form-group">
+                        <label for="username">Tài khoản <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" readonly value="${requestScope.user.username}"
+                               name="username"
+                               id="username"
+                               placeholder="Nhập tài khoản">
+                        <span class="text-danger mt-1" id="errorUsername"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Mật khẩu</label>
+                        <input type="password" class="form-control" required value="${requestScope.user.password}"
+                               id="password"
+                               name="password"
+                               placeholder="Nhập mật khẩu">
+                        <span class="text-danger mt-1" id="errorPassword"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile">Số điện thoại</label>
+                        <input type="text" class="form-control" value="${requestScope.user.mobile}"
+                               name="mobile"
+                               id="mobile"
+                               placeholder="Nhập số điện thoại">
+                        <span class="text-danger mt-1" id="errorMobile"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" value="${requestScope.user.email}"
+                               name="email"
+                               id="email"
+                               placeholder="Nhập số email">
+                        <span class="text-danger mt-1" id="errorEmail"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Địa chỉ</label>
+                        <input type="text" class="form-control"
+                               value="${requestScope.user.address}" id="address"
+                               name="address"
+                               placeholder="Nhập số địa chỉ">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    <a href="/admin/user/index" class="btn btn-warning">Danh sách</a>
+                </form>
             </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">Check me out</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        </div>
     </jsp:attribute>
 </at:templateAdmin>
+<script src="../../assets/js/user.js"></script>

@@ -17,7 +17,9 @@ public class UserServlet extends HttpServlet {
         if (action == null) {
             this.doGetList(req, resp);
         } else if (action.equals("edit")) {
-            this.doEdit(req, resp);
+            this.showFormEdit(req, resp);
+        } else if (action.equals("update")) {
+            this.doUpdate(req, resp);
         }
     }
 
@@ -27,7 +29,7 @@ public class UserServlet extends HttpServlet {
         request.getRequestDispatcher("/views/user/users.jsp").forward(request, response);
     }
 
-    protected void doEdit(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void showFormEdit(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
         long userId = Long.parseLong(id);
         Optional<User> user = UserDao.getInstance().get(userId);
@@ -39,9 +41,28 @@ public class UserServlet extends HttpServlet {
         }
     }
 
+    public void doUpdate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String password = request.getParameter("password");
+            String mobile = request.getParameter("mobile");
+            Long id = Long.valueOf(request.getParameter("userId"));
+            String email = request.getParameter("email");
+            String address = request.getParameter("address");
+            User user = new User();
+            user.setId(id);
+            user.setEmail(email);
+            user.setAddress(address);
+            user.setPassword(password);
+            user.setMobile(mobile);
+            UserDao.getInstance().update(user);
+            this.doGetList(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        this.doGet(req, resp);
     }
 }

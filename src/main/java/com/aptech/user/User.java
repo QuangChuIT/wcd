@@ -1,19 +1,29 @@
 package com.aptech.user;
 
-import javax.persistence.Column;
+import com.aptech.anotations.ColumnName;
+
 import java.util.Date;
 
 
 public class User {
+    @ColumnName(name = "id")
     private Long id;
+    @ColumnName(name = "username")
     private String username;
+    @ColumnName(name = "password")
     private String password;
+    @ColumnName(name = "mobile")
     private String mobile;
+    @ColumnName(name = "email")
     private String email;
+    @ColumnName(name = "address")
     private String address;
+    @ColumnName(name = "created_date")
     private Date createdDate;
+    @ColumnName(name = "modified_date")
     private Date modifiedDate;
-    private boolean status;
+    @ColumnName(name = "status")
+    private int status;
 
     public User() {
     }
@@ -91,11 +101,11 @@ public class User {
         this.modifiedDate = modifiedDate;
     }
 
-    public boolean isStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

@@ -37,7 +37,11 @@
                                 <td>
                                     <a href="/admin/user/index?action=edit&id=${user.id}"
                                        class="btn btn-sm btn-info">
-                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                        Sửa
+                                    </a>
+                                    <a href="/admin/user/index?action=delete&id=${user.id}"
+                                       class="btn btn-sm btn-danger">
+                                        Xóa
                                     </a>
                                 </td>
                             </tr>

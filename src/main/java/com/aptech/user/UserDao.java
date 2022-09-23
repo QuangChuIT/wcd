@@ -2,6 +2,7 @@ package com.aptech.user;
 
 import com.aptech.common.GenericDao;
 import com.aptech.utils.DatabaseUtil;
+import com.aptech.utils.ResultToObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,22 +36,7 @@ public class UserDao implements GenericDao<User> {
             Connection connection = DatabaseUtil.getInstance().getConnection();
             PreparedStatement statement = connection.prepareStatement(GET_DATA);
             ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                User user = new User();
-                Long id = resultSet.getLong("id");
-                String username = resultSet.getString(1);
-                String password = resultSet.getString(2);
-                String mobile = resultSet.getString(3);
-                String email = resultSet.getString(4);
-                String address = resultSet.getString(5);
-                user.setId(id);
-                user.setUsername(username);
-                user.setAddress(address);
-                user.setEmail(email);
-                user.setPassword(password);
-                user.setMobile(mobile);
-                users.add(user);
-            }
+            users = ResultToObject.getInstance().getData(resultSet, User.class);
             DatabaseUtil.getInstance().closeConnection(connection);
             DatabaseUtil.getInstance().closeObject(resultSet);
             DatabaseUtil.getInstance().closeObject(statement);
@@ -69,19 +55,9 @@ public class UserDao implements GenericDao<User> {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                user = new User();
-                String username = rs.getString("username");
-                String password = rs.getString("password");
-                String mobile = rs.getNString("mobile");
-                String email = rs.getString("email");
-                String address = rs.getString("address");
-                user.setId(id);
-                user.setUsername(username);
-                user.setAddress(address);
-                user.setEmail(email);
-                user.setPassword(password);
-                user.setMobile(mobile);
+            List<User> users = ResultToObject.getInstance().getData(rs, User.class);
+            if (users.size() > 0) {
+                user = users.get(0);
             }
             DatabaseUtil.getInstance().closeConnection(connection);
             DatabaseUtil.getInstance().closeObject(rs);
@@ -100,7 +76,19 @@ public class UserDao implements GenericDao<User> {
 
     @Override
     public void update(User obj) {
-
+        String sql = "update user set password = ?, email = ?, mobile = ?, address = ? where id = ?";
+        try {
+            Connection connection = DatabaseUtil.getInstance().getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, obj.getPassword());
+            statement.setString(2, obj.getEmail());
+            statement.setString(3, obj.getMobile());
+            statement.setString(4, obj.getAddress());
+            statement.setLong(5, obj.getId());
+            statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
