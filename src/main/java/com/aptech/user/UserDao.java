@@ -2,10 +2,8 @@ package com.aptech.user;
 
 import com.aptech.common.GenericDao;
 import com.aptech.utils.DatabaseUtil;
-import com.aptech.utils.HibernateUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,16 +25,6 @@ public class UserDao implements GenericDao<User> {
             instance = new UserDao();
         }
         return instance;
-    }
-
-    public List<User> findAllUsers() {
-        LOGGER.info("Hello world");
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from User ", User.class).getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
     }
 
 

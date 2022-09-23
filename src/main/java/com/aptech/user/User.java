@@ -1,30 +1,18 @@
 package com.aptech.user;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import java.util.Date;
 
-@Entity
-@Table(name = "user")
+
 public class User {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "username")
     private String username;
-    @Column(name = "password")
     private String password;
-    @Column(name = "mobile")
     private String mobile;
-    @Column(name = "email")
     private String email;
-    @Column(name = "address")
     private String address;
-    @Column(name = "created_date")
     private Date createdDate;
-    @Column(name = "modified_date")
     private Date modifiedDate;
-    @Column(name = "status")
     private boolean status;
 
     public User() {
