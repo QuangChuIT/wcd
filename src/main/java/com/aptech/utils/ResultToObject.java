@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,14 +56,14 @@ public class ResultToObject {
                 } else {
                     field.set(obj, null);
                 }
-            } else {
+            } else { // Default String
                 field.set(obj, value);
             }
         }
     }
 
     private boolean isPrimitive(Class<?> type) {
-        return (type == int.class || type == long.class || type == Long.class || type == double.class || type == float.class
+        return (type == int.class || type == long.class || type == double.class || type == float.class
                 || type == boolean.class || type == byte.class || type == char.class || type == short.class);
     }
 
@@ -85,8 +84,6 @@ public class ResultToObject {
             return Character.class;
         } else if (type == short.class) {
             return Short.class;
-        } else if (type == Long.class) {
-            return Long.class;
         } else {
             String string = "class '" + type.getName() + "' is not a primitive";
             throw new IllegalArgumentException(string);

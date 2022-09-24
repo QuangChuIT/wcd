@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class User {
     @ColumnName(name = "id")
-    private Long id;
+    private long id;
     @ColumnName(name = "username")
     private String username;
     @ColumnName(name = "password")
