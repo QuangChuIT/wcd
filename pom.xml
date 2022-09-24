@@ -28,6 +28,7 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+
     <!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
     <dependency>
       <groupId>jakarta.servlet</groupId>
@@ -36,13 +37,17 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>${mysql-connector-java.version}</version>
     </dependency>
-
+    <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.9.1</version>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -62,6 +67,19 @@
       <artifactId>mssql-jdbc</artifactId>
       <version>10.2.1.jre11</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>glassfish-jstl</artifactId>
+      <version>11.0.12</version>
+    </dependency>
+
   </dependencies>
 
   <build>
