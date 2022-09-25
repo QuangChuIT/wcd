@@ -4,14 +4,14 @@ import java.sql.*;
 
 public class DatabaseUtil {
     private static DatabaseUtil instance;
-    private String dbURL = "jdbc:mysql://localhost:3306/shopping?useSSL=false";
-    private String username = "root";
-    private String password = "123abc@A";
+    private final String dbURL;
+    private final String username;
+    private final String password;
 
     private DatabaseUtil() {
-        /*this.dbURL = SystemConfig.getInstance().getProperty("DB_URL");
+        this.dbURL = SystemConfig.getInstance().getProperty("DB_URL");
         this.username = SystemConfig.getInstance().getProperty("Username");
-        this.password = SystemConfig.getInstance().getProperty("Password");*/
+        this.password = SystemConfig.getInstance().getProperty("Password");
     }
 
     public static DatabaseUtil getInstance() {

@@ -1,6 +1,8 @@
 package com.aptech.user;
 
 
+import com.aptech.utils.MessageUtil;
+import com.aptech.utils.UserStatus;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,6 +24,8 @@ public class UserServlet extends HttpServlet {
             this.showFormEdit(req, resp);
         } else if (action.equals("update")) {
             this.doUpdate(req, resp);
+        } else if (action.equals("delete")) {
+            this.doDelete(req, resp);
         }
     }
 
@@ -43,25 +47,52 @@ public class UserServlet extends HttpServlet {
         }
     }
 
-    public void doUpdate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            String password = request.getParameter("password");
-            String mobile = request.getParameter("mobile");
-            Long id = Long.valueOf(request.getParameter("userId"));
-            String email = request.getParameter("email");
-            String address = request.getParameter("address");
-            User user = new User();
-            user.setId(id);
-            user.setEmail(email);
-            user.setAddress(address);
-            user.setPassword(password);
-            user.setMobile(mobile);
-            UserDao.getInstance().update(user);
-            response.sendRedirect("/admin/user/index");
-        } catch (Exception e) {
-            request.setAttribute("errorMessage", e.getMessage());
-            this.showFormEdit(request, response);
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("id");
+        if (id == null || id.equals("")) {
+            req.setAttribute("errorMessage", MessageUtil.getProperty("invalid_parameter"));
+            this.doGetList(req, resp);
+            return;
         }
+        Optional<User> user = UserDao.getInstance().get(Long.parseLong(id));
+        if (!user.isPresent()) {
+            req.setAttribute("errorMessage", MessageUtil.getProperty("not_found__user", id));
+            this.doGetList(req, resp);
+            return;
+        }
+        UserDao.getInstance().delete(Long.parseLong(id));
+        this.doGetList(req, resp);
+    }
+
+    public void doUpdate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String name = request.getParameter("name");
+        String mobile = request.getParameter("mobile");
+        long id = Long.parseLong(request.getParameter("id"));
+        String email = request.getParameter("email");
+        String[] status = request.getParameterValues("status");
+        Optional<User> optionalUser = UserDao.getInstance().get(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setName(name);
+            user.setEmail(email);
+            user.setMobile(mobile);
+            int newStatus = UserStatus.ACTIVE.getValue();
+            int oldStatus = user.getStatus();
+            if (status != null && oldStatus == UserStatus.ACTIVE.getValue()) {
+                newStatus = UserStatus.LOCK.getValue();
+            }
+            user.setStatus(newStatus);
+            try {
+                UserDao.getInstance().update(user);
+                response.sendRedirect("/admin/user/index");
+            } catch (Exception e) {
+                request.setAttribute("errorMessage", e.getMessage());
+                request.setAttribute("user", user);
+                request.getRequestDispatcher("/views/user/edit.jsp").forward(request, response);
+            }
+        }
+
     }
 
     @Override

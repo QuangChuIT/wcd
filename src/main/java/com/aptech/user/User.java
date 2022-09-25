@@ -16,25 +16,34 @@ public class User {
     private String mobile;
     @ColumnName(name = "email")
     private String email;
-    @ColumnName(name = "address")
-    private String address;
+    @ColumnName(name = "name")
+    private String name;
     @ColumnName(name = "created_date")
     private Date createdDate;
     @ColumnName(name = "modified_date")
     private Date modifiedDate;
     @ColumnName(name = "status")
     private int status;
+    @ColumnName(name = "photo")
+    private String photo;
+    @ColumnName(name = "last_failed_login_date")
+    private Date lastFailedLoginDate;
+    @ColumnName(name = "last_login_date")
+    private Date lastLoginDate;
+    @ColumnName(name = "lockout_date")
+    private Date lockoutDate;
+    @ColumnName(name = "login_fail_count")
+    private int loginFailCount;
 
     public User() {
     }
 
-    public User(String username, String password, String mobile,
-                String email, String address) {
-        this.username = username;
-        this.password = password;
-        this.mobile = mobile;
-        this.email = email;
-        this.address = address;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -69,20 +78,12 @@ public class User {
         this.email = email;
     }
 
-    public String getAddress() {
-        return address;
+    public String getName() {
+        return name;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Date getCreatedDate() {
@@ -109,15 +110,43 @@ public class User {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", mobile='" + mobile + '\'' +
-                ", email='" + email + '\'' +
-                ", address='" + address + '\'' +
-                '}';
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public Date getLastFailedLoginDate() {
+        return lastFailedLoginDate;
+    }
+
+    public void setLastFailedLoginDate(Date lastFailedLoginDate) {
+        this.lastFailedLoginDate = lastFailedLoginDate;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(Date lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    }
+
+    public Date getLockoutDate() {
+        return lockoutDate;
+    }
+
+    public void setLockoutDate(Date lockoutDate) {
+        this.lockoutDate = lockoutDate;
+    }
+
+    public int getLoginFailCount() {
+        return loginFailCount;
+    }
+
+    public void setLoginFailCount(int loginFailCount) {
+        this.loginFailCount = loginFailCount;
     }
 }

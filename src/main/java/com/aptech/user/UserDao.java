@@ -12,14 +12,16 @@ import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public class UserDao implements GenericDao<User> {
     private final static String GET_DATA = "select * from user";
     private final static String GET_USER_DETAIL = "select * from user where id = ?";
-    private final static String UPDATE_USER = "update user set password = ?, email = ?, mobile = ?, address = ?, modified_date = ? where id = ?";
+    private final static String UPDATE_USER = "update user set name = ?, email = ?, mobile = ?, status = ?, photo = ?, modified_date = ? where id = ?";
     private final static String INSERT_USER = "insert into user(username, password, mobile, email, address, status) values (?,?,?,?,?,?)";
     private final static String DELETE_USER = "delete from user where id = ?";
     private final static String LOGIN = "select * from user where username = ? and password = ?";
@@ -87,7 +89,6 @@ public class UserDao implements GenericDao<User> {
             statement.setString(2, AESUtil.encrypt(obj.getPassword()));
             statement.setString(4, obj.getEmail());
             statement.setString(3, obj.getMobile());
-            statement.setString(5, obj.getAddress());
             statement.setInt(6, UserStatus.LOCK.getValue());
             statement.executeUpdate();
             DatabaseUtil.getInstance().closeConnection(connection);
@@ -103,11 +104,13 @@ public class UserDao implements GenericDao<User> {
         try {
             Connection connection = DatabaseUtil.getInstance().getConnection();
             PreparedStatement statement = connection.prepareStatement(UPDATE_USER);
-            statement.setString(1, AESUtil.encrypt(obj.getPassword()));
+            statement.setString(1, obj.getName());
             statement.setString(2, obj.getEmail());
             statement.setString(3, obj.getMobile());
-            statement.setString(4, obj.getAddress());
-            statement.setLong(5, obj.getId());
+            statement.setInt(4, obj.getStatus());
+            statement.setTimestamp(6, new Timestamp(new Date().getTime()));
+            statement.setString(5, obj.getPhoto());
+            statement.setLong(7, obj.getId());
             statement.executeUpdate();
             DatabaseUtil.getInstance().closeConnection(connection);
             DatabaseUtil.getInstance().closeObject(statement);

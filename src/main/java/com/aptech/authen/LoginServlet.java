@@ -41,7 +41,6 @@ public class LoginServlet extends HttpServlet {
             resp.addCookie(cookie);
             resp.sendRedirect("/admin/index");
         } else {
-            LOGGER.info("haiz {}", MessageUtil.getProperty("invalid_username_password"));
             req.setAttribute("errorMessage", MessageUtil.getProperty("invalid_username_password"));
             this.doGet(req, resp);
         }

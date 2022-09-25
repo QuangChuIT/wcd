@@ -1,8 +1,8 @@
 package com.aptech.utils;
 
 public enum UserStatus {
-    LOCK(0),
-    ACTIVE(1);
+    LOCK(1),
+    ACTIVE(0);
     private final int value;
 
     UserStatus(int value) {
