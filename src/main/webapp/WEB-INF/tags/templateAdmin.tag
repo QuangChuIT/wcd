@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ tag language="java" pageEncoding="ISO-8859-1" isELIgnored="true" %>
 <%@ attribute name="content" fragment="true" %>
 <!DOCTYPE html>
@@ -414,8 +415,9 @@
 
 <!-- Bootstrap core JavaScript-->
 <script src="/assets/vendor/jquery/jquery.min.js"></script>
+<script src="<c:url value="/assets/js/jquery.tmpl.min.js"/>"></script>
 <script src="/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+<script src="<c:url value="/assets/js/notify.min.js"/>"></script>
 <!-- Core plugin JavaScript-->
 <script src="/assets/vendor/jquery-easing/jquery.easing.min.js"></script>
 
@@ -428,7 +430,8 @@
 
 <!-- Page level custom scripts -->
 <script src="/assets/js/demo/datatables-demo.js"></script>
-
+<script src="<c:url value="/assets/js/user.js"/>"></script>
+<script src="<c:url value="/assets/js/common-utils.js"/>"></script>
 </body>
 
 </html>

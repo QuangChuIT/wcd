@@ -65,4 +65,3 @@
         </div>
     </jsp:attribute>
 </at:templateAdmin>
-<script src="../../assets/js/user.js"></script>

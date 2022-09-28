@@ -1,20 +1,27 @@
 package com.aptech.user;
 
 
-import com.aptech.utils.MessageUtil;
+import com.aptech.utils.JSONConverter;
 import com.aptech.utils.UserStatus;
+import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@WebServlet(name = "UserServlet", urlPatterns = {"/admin/user/index"})
+@WebServlet(name = "UserServlet", urlPatterns = {"/admin/users"})
 public class UserServlet extends HttpServlet {
+    private final Gson gson = new Gson();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
@@ -26,6 +33,8 @@ public class UserServlet extends HttpServlet {
             this.doUpdate(req, resp);
         } else if (action.equals("delete")) {
             this.doDelete(req, resp);
+        } else if (action.equals("list")) {
+            this.doGetUsers(req, resp);
         }
     }
 
@@ -33,6 +42,20 @@ public class UserServlet extends HttpServlet {
         List<User> users = UserDao.getInstance().getAll();
         request.setAttribute("users", users);
         request.getRequestDispatcher("/views/user/users.jsp").forward(request, response);
+    }
+
+    protected void doGetUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            String userIds = JSONConverter.readJson(request);
+            response.setContentType("application/json;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_OK);
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     protected void showFormEdit(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -49,20 +72,16 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String id = req.getParameter("id");
-        if (id == null || id.equals("")) {
-            req.setAttribute("errorMessage", MessageUtil.getProperty("invalid_parameter"));
-            this.doGetList(req, resp);
-            return;
+        String body = JSONConverter.readJson(req);
+        LOGGER.info("Request delete " + body);
+        if (body != null && !body.equals("")) {
+            JSONObject jsonObject = new JSONObject(body);
+            LOGGER.info("Request delete " + jsonObject);
+            resp.setContentType("application/json;charset=UTF-8");
+            ServletOutputStream outputStream = resp.getOutputStream();
+            outputStream.print(jsonObject.toString());
         }
-        Optional<User> user = UserDao.getInstance().get(Long.parseLong(id));
-        if (!user.isPresent()) {
-            req.setAttribute("errorMessage", MessageUtil.getProperty("not_found__user", id));
-            this.doGetList(req, resp);
-            return;
-        }
-        UserDao.getInstance().delete(Long.parseLong(id));
-        this.doGetList(req, resp);
+
     }
 
     public void doUpdate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -99,4 +118,6 @@ public class UserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         this.doGet(req, resp);
     }
+
+    private final static Logger LOGGER = LogManager.getLogger(JSONConverter.class);
 }
