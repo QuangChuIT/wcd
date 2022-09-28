@@ -7,6 +7,7 @@ window.UserManager = {
         cookie: 1,
         pathPlugin: "/asset",
         requestTimeout: 5000,
+        contentType: "application/json;charset=utf-8",
         dataTable: null,
         mode: "system"
     },
@@ -19,22 +20,79 @@ window.UserManager = {
     renderDataTable: function () {
         let instance = this;
         $.get(instance.userSetting.host + "?action=list", function (data) {
-            $("#userRowTmpl").tmpl(data).appendTo("#usersBody")
+            console.log(data)
+            if (data.error_code == 'WCD-00000000') {
+                $("#userRowTmpl").tmpl(data.data).appendTo("#usersBody")
+            }
         })
     },
-    validate: function () {
+    createUser: function (e) {
         let instance = this;
-        let result = true;
+        e.preventDefault()
+        let username = $("#username").val()
+        let password = $("#password").val()
+        let name = $("#name").val()
         let mobile = $("#mobile").val()
         let email = $("#email").val()
+        if (!instance.validate(username, password, name, mobile, email)) {
+            return;
+        }
+        let req = {
+            username: username,
+            password: password,
+            name: name,
+            mobile: mobile,
+            email: email
+        }
+        $.ajax({
+            type: "POST",
+            url: instance.userSetting.host + "?action=create",
+            contentType: instance.userSetting.contentType,
+            data: JSON.stringify(req),
+            cache: false,
+            success: function (response) {
+                console.log(response)
+                if (response.error_code === 'WCD-00000000') {
+                    $('#createUserModal').modal('hide');
+                    $.notify("Thêm mới người dùng thành công!", "success")
+                    instance.renderDataTable()
+                } else {
+                    $.notify("Thêm mới người dùng thất bại: " + response.error_message)
+                }
+            },
+            error: function (error) {
+                console.log(error)
+                $.notify("Lỗi khi thêm mới người dùng: " + error.message, "err")
+            }
+        })
+    }
+    ,
+    validate: function (username, password, name, mobile, email) {
+        let instance = this;
+        let result = true;
+        if (!instance.validateUsername(username)) {
+            $("#errorUsername").text("Tên đăng nhập không đúng định, tên đăng nhập không được chứa kí tự đặc biệt")
+        } else {
+            $("#errorUsername").text("")
+        }
         if (!instance.validateEmail(email)) {
             $("#errorEmail").text("Email không đúng định dạng")
-            result = false;
+        } else {
+            $("#errorEmail").text("")
         }
 
         if (!instance.validateMobile(mobile)) {
             $("#errorMobile").text("Số điện thoại không đúng định dạng")
+        } else {
+            $("#errorMobile").text("")
+        }
+
+        if (!this.validatePassword(password)) {
+            $("#errorPassword").text("Mật khẩu không đúng định dạng, Mật khẩu gồm chữa hoa, thường số, ký tự đặc biệt 6-15 ký tự")
             result = false;
+        } else {
+            $("#errorPassword").text("")
+            result = true
         }
         return result;
     },
@@ -97,4 +155,8 @@ $(document).on("change", "#selectAllUsers", function (e) {
         $("input[name='userId']").prop("checked", false)
     }
 
+})
+
+$(document).on("click", "#btnCreateUser", function (e) {
+    UserManager.createUser(e);
 })

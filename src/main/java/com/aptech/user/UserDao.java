@@ -5,24 +5,20 @@ import com.aptech.exception.UserException;
 import com.aptech.utils.AESUtil;
 import com.aptech.utils.DatabaseUtil;
 import com.aptech.utils.ResultToObject;
-import com.aptech.utils.UserStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public class UserDao implements GenericDao<User> {
-    private final static String GET_DATA = "select * from user";
+    private final static String GET_DATA = "select * from user order by created_date desc";
     private final static String GET_USER_DETAIL = "select * from user where id = ?";
     private final static String UPDATE_USER = "update user set name = ?, email = ?, mobile = ?, status = ?, photo = ?, modified_date = ? where id = ?";
-    private final static String INSERT_USER = "insert into user(username, password, mobile, email, address, status) values (?,?,?,?,?,?)";
+    private final static String INSERT_USER = "insert into user(username, password, name, mobile, email, status) values (?,?,?,?,?,?)";
     private final static String DELETE_USER = "delete from user where id = ?";
     private final static String LOGIN = "select * from user where username = ? and password = ?";
     private static UserDao instance;
@@ -82,18 +78,26 @@ public class UserDao implements GenericDao<User> {
 
     @Override
     public void save(User obj) {
+        Connection connection = DatabaseUtil.getInstance().getConnection();
         try {
-            Connection connection = DatabaseUtil.getInstance().getConnection();
+            connection.setAutoCommit(false);
             PreparedStatement statement = connection.prepareStatement(INSERT_USER);
             statement.setString(1, obj.getUsername());
-            statement.setString(2, AESUtil.encrypt(obj.getPassword()));
-            statement.setString(4, obj.getEmail());
-            statement.setString(3, obj.getMobile());
-            statement.setInt(6, UserStatus.LOCK.getValue());
+            statement.setString(2, obj.getPassword());
+            statement.setString(3, obj.getName());
+            statement.setString(4, obj.getMobile());
+            statement.setString(5, obj.getEmail());
+            statement.setInt(6, obj.getStatus());
             statement.executeUpdate();
+            connection.commit();
             DatabaseUtil.getInstance().closeConnection(connection);
             DatabaseUtil.getInstance().closeObject(statement);
         } catch (Exception e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             LOGGER.error("Error create user", e);
             throw new UserException("Create user error: " + e.getMessage());
         }
@@ -101,8 +105,9 @@ public class UserDao implements GenericDao<User> {
 
     @Override
     public void update(User obj) {
+        Connection connection = DatabaseUtil.getInstance().getConnection();
         try {
-            Connection connection = DatabaseUtil.getInstance().getConnection();
+            connection.setAutoCommit(false);
             PreparedStatement statement = connection.prepareStatement(UPDATE_USER);
             statement.setString(1, obj.getName());
             statement.setString(2, obj.getEmail());
@@ -115,6 +120,11 @@ public class UserDao implements GenericDao<User> {
             DatabaseUtil.getInstance().closeConnection(connection);
             DatabaseUtil.getInstance().closeObject(statement);
         } catch (Exception e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             LOGGER.error("Update user error", e);
             throw new UserException("Update user error: " + e.getMessage());
         }

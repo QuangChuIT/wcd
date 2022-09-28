@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class BaseResponseBuilder {
+
     public static final String CODE_OK = "WCD-00000000";
     public static final String CODE_NO_CONTENT = "WCD-00000204";
     public static final String CODE_INTERNAL_SERVER_ERROR = "WCD-00000500";

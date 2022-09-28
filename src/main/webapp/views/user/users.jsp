@@ -13,7 +13,9 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary d-inline-block align-middle">Danh sách tài khoản</h6>
-                <button class="btn btn-primary ml-3"><i class="fas fa-plus"></i> Tạo mới</button>
+                <button class="btn btn-primary ml-3" data-toggle="modal" data-target="#createUserModal"><i
+                        class="fas fa-plus"></i> Tạo mới
+                </button>
                 <button class="btn btn-danger ml-3"><i class="fas fa-trash"></i> Xóa</button>
             </div>
             <div class="card-body">
@@ -33,39 +35,7 @@
                         </tr>
                         </thead>
                         <tbody id="usersBody">
-                            <%--<c:forEach var="user" items="${requestScope.users}" varStatus="loop">
-                                    <tr>
-                                        <td><input type="checkbox" name="userId" value="${user.id}"/></td>
-                                        <td>${user.username}</td>
-                                        <td>${user.name}</td>
-                                        <td>${user.mobile}</td>
-                                        <td>${user.email}</td>
-                                        <td><fmt:formatDate pattern="dd/MM/yyyy HH:mm:ss" value="${user.createdDate}"/></td>
-                                        <td>
-                                            <c:if test="${user.lastLoginDate != null}">
-                                                <fmt:formatDate pattern="dd/MM/yyyy HH:mm:ss"
-                                                                value="${user.lastLoginDate}"/>
-                                            </c:if>
-                                        </td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${user.status == 0}">
-                                                    <span>Hoạt động</span>
-                                                </c:when>
-                                                <c:when test="${user.status == 1}">
-                                                    <span>Khóa</span>
-                                                </c:when>
-                                            </c:choose>
-                                        </td>
-                                        <td>
-                                            <a href="/admin/user/index?action=edit&id=${user.id}"
-                                               class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top"
-                                               title="Sửa người dùng">
-                                                <i class="fas fa-pen"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </c:forEach>--%>
+
                         </tbody>
                     </table>
                 </div>
@@ -73,6 +43,63 @@
         </div>
     </jsp:attribute>
 </at:templateAdmin>
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="username">Tài khoản <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control"
+                           name="username"
+                           id="username"
+                           placeholder="Nhập tài khoản">
+                    <span class="text-danger mt-1" id="errorUsername"></span>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mật khẩu <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control"
+                           name="password"
+                           id="password"
+                           placeholder="Nhập tài khoản">
+                    <span class="text-danger mt-1" id="errorPassword"></span>
+                </div>
+                <div class="form-group">
+                    <label for="name">Họ và tên <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" required
+                           id="name"
+                           name="name"
+                           placeholder="Nhập họ và tên">
+                </div>
+                <div class="form-group">
+                    <label for="mobile">Số điện thoại <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control"
+                           name="mobile"
+                           id="mobile"
+                           placeholder="Nhập số điện thoại">
+                    <span class="text-danger mt-1" id="errorMobile"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control"
+                           name="email"
+                           id="email"
+                           placeholder="Nhập số email">
+                    <span class="text-danger mt-1" id="errorEmail"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="btnCreateUser">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script id="userRowTmpl" type="text/x-jQuery-tmpl">
     <tr>
         <td><input type="checkbox" name="userId" value="${id}"/></td>
@@ -88,6 +115,9 @@
 </script>
 <script>
     $(document).ready(function () {
-        UserManager.renderDataTable()
+        $.get("http://localhost:8080/admin/users?action=getList", function (data) {
+            // Render the books using the template
+            $("#userRowTmpl").tmpl(data).appendTo("#usersBody");
+        })
     })
 </script>

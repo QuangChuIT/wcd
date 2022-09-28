@@ -1,6 +1,10 @@
 package com.aptech.user;
 
 
+import com.aptech.common.BaseResponse;
+import com.aptech.common.BaseResponseBuilder;
+import com.aptech.user.payload.CreateUserReq;
+import com.aptech.utils.AESUtil;
 import com.aptech.utils.JSONConverter;
 import com.aptech.utils.UserStatus;
 import com.google.gson.Gson;
@@ -15,8 +19,11 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @WebServlet(name = "UserServlet", urlPatterns = {"/admin/users"})
 public class UserServlet extends HttpServlet {
@@ -35,7 +42,52 @@ public class UserServlet extends HttpServlet {
             this.doDelete(req, resp);
         } else if (action.equals("list")) {
             this.doGetUsers(req, resp);
+        } else if (action.equals("getList")) {
+            this.doGetAllUsers(req, resp);
+        } else if (action.equals("create")) {
+            this.doCreateUser(req, resp);
         }
+    }
+
+    protected void doCreateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String request_id = UUID.randomUUID().toString();
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        BaseResponse<Object> resp;
+        try {
+            String jsonReq = JSONConverter.readJson(request);
+            CreateUserReq createUserReq = gson.fromJson(jsonReq, CreateUserReq.class);
+            User user = new User();
+            user.setUsername(createUserReq.getUsername());
+            user.setPassword(AESUtil.encrypt(createUserReq.getPassword()));
+            user.setMobile(createUserReq.getMobile());
+            user.setEmail(createUserReq.getEmail());
+            user.setName(createUserReq.getName());
+            Date now = new Date();
+            user.setCreatedDate(now);
+            user.setModifiedDate(now);
+            user.setLoginFailCount(0);
+            user.setStatus(UserStatus.ACTIVE.getValue());
+            UserDao.getInstance().save(user);
+            resp = BaseResponseBuilder.of(null, request_id, null, BaseResponseBuilder.CODE_OK);
+        } catch (Exception e) {
+            resp = BaseResponseBuilder.of(null, request_id, e.getMessage(), BaseResponseBuilder.CODE_INTERNAL_SERVER_ERROR);
+        }
+        out.println(gson.toJson(resp));
+        out.flush();
+    }
+
+    protected void doGetAllUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<User> users = UserDao.getInstance().getAll();
+        PrintWriter out = response.getWriter();
+        String json = gson.toJson(users);
+        System.out.println(json);
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        out.println(json);
+        out.flush();
     }
 
     protected void doGetList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -45,15 +97,22 @@ public class UserServlet extends HttpServlet {
     }
 
     protected void doGetUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String request_id = UUID.randomUUID().toString();
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
         try {
-            String userIds = JSONConverter.readJson(request);
-            response.setContentType("application/json;charset=UTF-8");
-            response.setCharacterEncoding("UTF-8");
-            response.setStatus(HttpServletResponse.SC_OK);
+            List<User> users = UserDao.getInstance().getAll();
+            BaseResponse<List<User>> resp = BaseResponseBuilder.of(users, request_id, null, BaseResponseBuilder.CODE_OK);
+
+            String json = gson.toJson(resp);
+            out.println(json);
+            out.flush();
         } catch (Exception e) {
-            response.setContentType("application/json;charset=UTF-8");
-            response.setCharacterEncoding("UTF-8");
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            BaseResponse<Object> resp = BaseResponseBuilder.of(null, e.getMessage(), BaseResponseBuilder.CODE_INTERNAL_SERVER_ERROR);
+            out.println(gson.toJson(resp));
+            out.flush();
         }
 
     }

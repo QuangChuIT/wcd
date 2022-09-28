@@ -21,10 +21,14 @@ public class DatabaseUtil {
         return instance;
     }
 
-    public Connection getConnection() throws Exception {
-        Connection conn;
-        Class.forName("com.mysql.jdbc.Driver");
-        conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+    public Connection getConnection() {
+        Connection conn = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return conn;
     }
 
