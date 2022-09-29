@@ -4,6 +4,7 @@ package com.aptech.user;
 import com.aptech.common.BaseResponse;
 import com.aptech.common.BaseResponseBuilder;
 import com.aptech.user.payload.CreateUserReq;
+import com.aptech.user.payload.UpdateUserReq;
 import com.aptech.utils.AESUtil;
 import com.aptech.utils.JSONConverter;
 import com.aptech.utils.UserStatus;
@@ -46,7 +47,24 @@ public class UserServlet extends HttpServlet {
             this.doGetAllUsers(req, resp);
         } else if (action.equals("create")) {
             this.doCreateUser(req, resp);
+        } else if (action.equals("detail")) {
+            this.doGetUserDetail(req, resp);
         }
+    }
+
+    protected void doGetUserDetail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        long userId = Long.parseLong(request.getParameter("userId"));
+        String request_id = UUID.randomUUID().toString();
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        Optional<User> user = UserDao.getInstance().get(userId);
+        BaseResponse<Object> resp;
+        resp = user.<BaseResponse<Object>>map(value -> BaseResponseBuilder.of(value, request_id, null, BaseResponseBuilder.CODE_OK))
+                .orElseGet(() -> BaseResponseBuilder.of(null, request_id, null, "WCD-00000404"));
+        out.println(gson.toJson(resp));
+        out.flush();
     }
 
     protected void doCreateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -105,7 +123,6 @@ public class UserServlet extends HttpServlet {
         try {
             List<User> users = UserDao.getInstance().getAll();
             BaseResponse<List<User>> resp = BaseResponseBuilder.of(users, request_id, null, BaseResponseBuilder.CODE_OK);
-
             String json = gson.toJson(resp);
             out.println(json);
             out.flush();
@@ -144,33 +161,28 @@ public class UserServlet extends HttpServlet {
     }
 
     public void doUpdate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String name = request.getParameter("name");
-        String mobile = request.getParameter("mobile");
-        long id = Long.parseLong(request.getParameter("id"));
-        String email = request.getParameter("email");
-        String[] status = request.getParameterValues("status");
-        Optional<User> optionalUser = UserDao.getInstance().get(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setName(name);
-            user.setEmail(email);
-            user.setMobile(mobile);
-            int newStatus = UserStatus.ACTIVE.getValue();
-            int oldStatus = user.getStatus();
-            if (status != null && oldStatus == UserStatus.ACTIVE.getValue()) {
-                newStatus = UserStatus.LOCK.getValue();
-            }
-            user.setStatus(newStatus);
-            try {
-                UserDao.getInstance().update(user);
-                response.sendRedirect("/admin/user/index");
-            } catch (Exception e) {
-                request.setAttribute("errorMessage", e.getMessage());
-                request.setAttribute("user", user);
-                request.getRequestDispatcher("/views/user/edit.jsp").forward(request, response);
-            }
+        String request_id = UUID.randomUUID().toString();
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        BaseResponse<Object> resp;
+        try {
+            String jsonReq = JSONConverter.readJson(request);
+            UpdateUserReq req = gson.fromJson(jsonReq, UpdateUserReq.class);
+            Long userId = req.getId();
+            User user = UserDao.getInstance().get(userId).get();
+            user.setName(req.getName());
+            user.setStatus(req.getStatus());
+            user.setEmail(req.getEmail());
+            user.setMobile(req.getMobile());
+            UserDao.getInstance().update(user);
+            resp = BaseResponseBuilder.of(null, request_id, null, BaseResponseBuilder.CODE_OK);
+        } catch (Exception e) {
+            resp = BaseResponseBuilder.of(null, request_id, e.getMessage(), BaseResponseBuilder.CODE_INTERNAL_SERVER_ERROR);
         }
-
+        out.println(gson.toJson(resp));
+        out.flush();
     }
 
     @Override

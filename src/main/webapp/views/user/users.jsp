@@ -47,7 +47,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title">Tạo mới người dùng</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -75,6 +75,7 @@
                            id="name"
                            name="name"
                            placeholder="Nhập họ và tên">
+                    <span class="text-danger mt-1" id="errorName"></span>
                 </div>
                 <div class="form-group">
                     <label for="mobile">Số điện thoại <span class="text-danger">*</span></label>
@@ -93,13 +94,75 @@
                     <span class="text-danger mt-1" id="errorEmail"></span>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-secondary cancel-user-form" data-dismiss="modal">Hủy</button>
                     <button type="button" class="btn btn-primary" id="btnCreateUser">Lưu</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<div class="modal fade" id="editUserModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật người dùng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body edit-user" id="editUser">
+            </div>
+        </div>
+    </div>
+</div>
+<script id="editUserTmp" type="text/x-jQuery-tmpl">
+     <div class="form-group">
+        <label for="editUsername">Tài khoản <span class="text-danger">*</span></label>
+        <input type="text" class="form-control"
+               name="editUsername"
+               id="editUsername"
+               readonly
+               value="${username}"
+               placeholder="Tài khoản">
+        <span class="text-danger mt-1" id="errorUsername"></span>
+    </div>
+    <div class="form-group">
+        <label for="editName">Họ và tên <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" required
+               id="editName"
+               name="editName"
+               value="${name}"
+               placeholder="Họ và tên">
+        <span class="text-danger mt-1" id="errorName"></span>
+    </div>
+    <div class="form-group">
+        <label for="editMobile">Số điện thoại <span class="text-danger">*</span></label>
+        <input type="text" class="form-control"
+               name="editMobile"
+               id="editMobile"
+               value="${mobile}"
+               placeholder="Số điện thoại">
+        <span class="text-danger mt-1" id="errorMobile"></span>
+    </div>
+    <div class="form-group">
+        <label for="editEmail">Email <span class="text-danger">*</span></label>
+        <input type="email" class="form-control"
+               name="editEmail"
+               id="editEmail"
+               value="${email}"
+               placeholder="Nhập số email">
+        <span class="text-danger mt-1" id="errorEmail"></span>
+    </div>
+     <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="${status}}" id="editStatus" {{if status == 0}}checked{{/if}}>
+            <label class="form-check-label" for="editStatus">Hoạt động</label>
+     </div>
+     <div class="modal-footer">
+        <button type="button" class="btn btn-secondary cancel-user-form"  data-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" data-id="${id}" id="btnSaveEditUser">Lưu</button>
+     </div>
+</script>
 <script id="userRowTmpl" type="text/x-jQuery-tmpl">
     <tr>
         <td><input type="checkbox" name="userId" value="${id}"/></td>
@@ -110,14 +173,11 @@
         <td>${formatDateTime(createdDate)}</td>
         <td>{{if lastLoginDate }}${formatDateTime(lastLoginDate)}{{else}}{{/if}}</td>
         <td>{{if status == 0 }}Hoạt động{{else}}Khóa{{/if}}</td>
-        <td><button class="btn btn-sm btn-info" data-id="${id}"><i class="fas fa-pencil"></i> Sửa</button></td>
+        <td><button class="btn btn-sm btn-info btnEditUser" data-id="${id}"><i class="fas fa-pencil"></i> Sửa</button></td>
     </tr>
 </script>
 <script>
     $(document).ready(function () {
-        $.get("http://localhost:8080/admin/users?action=getList", function (data) {
-            // Render the books using the template
-            $("#userRowTmpl").tmpl(data).appendTo("#usersBody");
-        })
+        UserManager.renderDataTable()
     })
 </script>

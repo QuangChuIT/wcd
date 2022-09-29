@@ -117,8 +117,10 @@ public class UserDao implements GenericDao<User> {
             statement.setString(5, obj.getPhoto());
             statement.setLong(7, obj.getId());
             statement.executeUpdate();
+            connection.commit();
             DatabaseUtil.getInstance().closeConnection(connection);
             DatabaseUtil.getInstance().closeObject(statement);
+
         } catch (Exception e) {
             try {
                 connection.rollback();

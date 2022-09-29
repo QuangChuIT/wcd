@@ -22,6 +22,7 @@ window.UserManager = {
         $.get(instance.userSetting.host + "?action=list", function (data) {
             console.log(data)
             if (data.error_code == 'WCD-00000000') {
+                $("#usersBody").empty()
                 $("#userRowTmpl").tmpl(data.data).appendTo("#usersBody")
             }
         })
@@ -54,6 +55,7 @@ window.UserManager = {
                 console.log(response)
                 if (response.error_code === 'WCD-00000000') {
                     $('#createUserModal').modal('hide');
+                    instance.clear()
                     $.notify("Thêm mới người dùng thành công!", "success")
                     instance.renderDataTable()
                 } else {
@@ -65,34 +67,113 @@ window.UserManager = {
                 $.notify("Lỗi khi thêm mới người dùng: " + error.message, "err")
             }
         })
-    }
-    ,
+    },
+    editUser: function (e, userid) {
+        let instance = this;
+        e.preventDefault()
+        let name = $("#editName").val()
+        let mobile = $("#editMobile").val()
+        let email = $("#editEmail").val()
+        let status = $("#editStatus").prop("checked") === true ? 0 : 1
+        if (!instance.validateBase(name, mobile, email)) {
+            return;
+        }
+        let req = {
+            id: userid,
+            name: name,
+            mobile: mobile,
+            email: email,
+            status: status
+        }
+        $.ajax({
+            type: "POST",
+            url: instance.userSetting.host + "?action=update",
+            contentType: instance.userSetting.contentType,
+            data: JSON.stringify(req),
+            cache: false,
+            success: function (response) {
+                console.log(response)
+                if (response.error_code === 'WCD-00000000') {
+                    $('#editUserModal').modal('hide');
+                    $.notify("Cập nhật người dùng thành công!", "success")
+                    instance.clear()
+                    instance.renderDataTable()
+                } else {
+                    $.notify("Cập nhật người dùng thất bại: " + response.error_message, "error")
+                }
+            },
+            error: function (error) {
+                console.log(error)
+                $.notify("Lỗi khi cập nhật người dùng: " + error.message, "error")
+            }
+        })
+    },
+    showModalEditUser(userId) {
+        let instance = this;
+        $.get(instance.userSetting.host + "?action=detail&userId=" + userId, function (data) {
+            if (data.error_code == 'WCD-00000000') {
+                let user = data.data
+                $("#editUser").empty()
+                $("#editUserTmp").tmpl(user).appendTo("#editUser")
+                $("#editUserModal").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                })
+            } else if (data.error_code == 'WCD-00000404') {
+                $.notify("Không tồn tại người dùng với id " + userId)
+            }
+        })
+    },
+    clear() {
+        // Clear error
+        $("#errorUsername").text("")
+        $("#errorMobile").text("")
+        $("#errorEmail").text("")
+        $("#errorPassword").text("")
+        // Clear form input
+        $("#username").val("")
+        $("#password").val("")
+        $("#name").val("")
+        $("#email").val("")
+        $("#mobile").val("")
+    },
     validate: function (username, password, name, mobile, email) {
         let instance = this;
         let result = true;
+        result = instance.validateBase(name, mobile, email)
         if (!instance.validateUsername(username)) {
             $("#errorUsername").text("Tên đăng nhập không đúng định, tên đăng nhập không được chứa kí tự đặc biệt")
+            result = false;
         } else {
             $("#errorUsername").text("")
         }
+        if (!this.validatePassword(password)) {
+            $("#errorPassword").text("Mật khẩu không đúng định dạng, Mật khẩu gồm chữa hoa, thường số, ký tự đặc biệt 6-15 ký tự")
+            result = false;
+        } else {
+            $("#errorPassword").text("")
+        }
+        return result;
+    },
+    validateBase: function (name, mobile, email) {
+        let instance = this;
+        let result = true
+        if (!name) {
+            $("#errorName").text("Họ và tên không được trống")
+            result = false
+        }
         if (!instance.validateEmail(email)) {
             $("#errorEmail").text("Email không đúng định dạng")
+            result = false;
         } else {
             $("#errorEmail").text("")
         }
 
         if (!instance.validateMobile(mobile)) {
             $("#errorMobile").text("Số điện thoại không đúng định dạng")
-        } else {
-            $("#errorMobile").text("")
-        }
-
-        if (!this.validatePassword(password)) {
-            $("#errorPassword").text("Mật khẩu không đúng định dạng, Mật khẩu gồm chữa hoa, thường số, ký tự đặc biệt 6-15 ký tự")
             result = false;
         } else {
-            $("#errorPassword").text("")
-            result = true
+            $("#errorMobile").text("")
         }
         return result;
     },
@@ -159,4 +240,16 @@ $(document).on("change", "#selectAllUsers", function (e) {
 
 $(document).on("click", "#btnCreateUser", function (e) {
     UserManager.createUser(e);
+})
+
+$(document).on("click", ".btnEditUser", function (e) {
+    e.preventDefault();
+    let userId = $(this).attr("data-id")
+    UserManager.showModalEditUser(userId)
+})
+
+$(document).on("click", "#btnSaveEditUser", function (e) {
+    e.preventDefault();
+    let userId = $(this).attr("data-id")
+    UserManager.editUser(e, userId);
 })
