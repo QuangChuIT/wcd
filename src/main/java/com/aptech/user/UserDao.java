@@ -1,6 +1,5 @@
 package com.aptech.user;
 
-import com.aptech.common.GenericDao;
 import com.aptech.exception.UserException;
 import com.aptech.utils.AESUtil;
 import com.aptech.utils.DatabaseUtil;
@@ -14,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDao implements GenericDao<User> {
+public class UserDao {
     private final static String GET_DATA = "select * from user order by created_date desc";
     private final static String GET_USER_DETAIL = "select * from user where id = ?";
     private final static String UPDATE_USER = "update user set name = ?, email = ?, mobile = ?, status = ?, photo = ?, modified_date = ? where id = ?";
@@ -35,7 +34,6 @@ public class UserDao implements GenericDao<User> {
     }
 
 
-    @Override
     public List<User> getAll() {
         List<User> users = new ArrayList<>();
         try {
@@ -52,7 +50,6 @@ public class UserDao implements GenericDao<User> {
         return users;
     }
 
-    @Override
     public Optional<User> get(long id) {
 
         User user = null;
@@ -76,7 +73,6 @@ public class UserDao implements GenericDao<User> {
         return Optional.ofNullable(user);
     }
 
-    @Override
     public void save(User obj) {
         Connection connection = DatabaseUtil.getInstance().getConnection();
         try {
@@ -103,7 +99,6 @@ public class UserDao implements GenericDao<User> {
         }
     }
 
-    @Override
     public void update(User obj) {
         Connection connection = DatabaseUtil.getInstance().getConnection();
         try {
@@ -132,7 +127,6 @@ public class UserDao implements GenericDao<User> {
         }
     }
 
-    @Override
     public void delete(long id) {
         try {
             Connection connection = DatabaseUtil.getInstance().getConnection();

@@ -1,16 +1,17 @@
 package com.aptech.common;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
-public interface GenericDao<T> {
+public interface GenericDao<T extends Serializable > {
     List<T> getAll();
 
-    Optional<T> get(long id);
+    Optional<T> getById(long id);
 
-    void save(T obj);
+    void create(T o);
 
-    void update(T obj);
+    void update(T o);
 
-    void delete(long id);
+    void delete(T o);
 }

@@ -38,6 +38,7 @@ window.UserManager = {
         if (!instance.validate(username, password, name, mobile, email)) {
             return;
         }
+        let formData = new FormData();
         let req = {
             username: username,
             password: password,
@@ -45,11 +46,13 @@ window.UserManager = {
             mobile: mobile,
             email: email
         }
+        console.log(formData)
         $.ajax({
             type: "POST",
             url: instance.userSetting.host + "?action=create",
             contentType: instance.userSetting.contentType,
             data: JSON.stringify(req),
+            processData: false,
             cache: false,
             success: function (response) {
                 console.log(response)

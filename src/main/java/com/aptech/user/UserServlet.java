@@ -11,10 +11,12 @@ import com.aptech.utils.UserStatus;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -27,6 +29,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @WebServlet(name = "UserServlet", urlPatterns = {"/admin/users"})
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
+
+)
 public class UserServlet extends HttpServlet {
     private final Gson gson = new Gson();
 
@@ -75,6 +83,9 @@ public class UserServlet extends HttpServlet {
         response.setStatus(HttpServletResponse.SC_OK);
         BaseResponse<Object> resp;
         try {
+            Part filePart = request.getPart("file");
+            String fileName = filePart.getSubmittedFileName();
+            LOGGER.info("file name {}", fileName);
             String jsonReq = JSONConverter.readJson(request);
             CreateUserReq createUserReq = gson.fromJson(jsonReq, CreateUserReq.class);
             User user = new User();

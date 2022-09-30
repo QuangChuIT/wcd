@@ -93,6 +93,10 @@
                            placeholder="Nhập số email">
                     <span class="text-danger mt-1" id="errorEmail"></span>
                 </div>
+                <div class="form-group">
+                    <label for="email">Ảnh đại diện</label>
+                    <input type="file" id="userPhoto">
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary cancel-user-form" data-dismiss="modal">Hủy</button>
                     <button type="button" class="btn btn-primary" id="btnCreateUser">Lưu</button>
