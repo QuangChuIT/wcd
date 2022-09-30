@@ -2,24 +2,18 @@ package com.aptech.user;
 
 import com.aptech.exception.UserException;
 import com.aptech.utils.AESUtil;
-import com.aptech.utils.DatabaseUtil;
-import com.aptech.utils.ResultToObject;
+import com.aptech.utils.JPAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.*;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public class UserDao {
-    private final static String GET_DATA = "select * from user order by created_date desc";
-    private final static String GET_USER_DETAIL = "select * from user where id = ?";
-    private final static String UPDATE_USER = "update user set name = ?, email = ?, mobile = ?, status = ?, photo = ?, modified_date = ? where id = ?";
-    private final static String INSERT_USER = "insert into user(username, password, name, mobile, email, status) values (?,?,?,?,?,?)";
-    private final static String DELETE_USER = "delete from user where id = ?";
-    private final static String LOGIN = "select * from user where username = ? and password = ?";
+
     private static UserDao instance;
     private final static Logger LOGGER = LogManager.getLogger(UserDao.class);
 
@@ -35,128 +29,92 @@ public class UserDao {
 
 
     public List<User> getAll() {
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
         List<User> users = new ArrayList<>();
         try {
-            Connection connection = DatabaseUtil.getInstance().getConnection();
-            PreparedStatement statement = connection.prepareStatement(GET_DATA);
-            ResultSet resultSet = statement.executeQuery();
-            users = ResultToObject.getInstance().getData(resultSet, User.class);
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeObject(resultSet);
-            DatabaseUtil.getInstance().closeObject(statement);
+            Query query = em.createQuery("select u from User u order by u.createdDate desc", User.class);
+            users = query.getResultList();
+            if (users == null) {
+                users = new ArrayList<>();
+            }
         } catch (Exception e) {
-            LOGGER.error("Error get users", e);
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
         return users;
     }
 
     public Optional<User> get(long id) {
-
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
         User user = null;
         try {
-            Connection connection = DatabaseUtil.getInstance().getConnection();
-            PreparedStatement stmt = connection.prepareStatement(GET_USER_DETAIL);
-            stmt.setLong(1, id);
-            ResultSet rs = stmt.executeQuery();
-            List<User> users = ResultToObject.getInstance().getData(rs, User.class);
-            if (users.size() > 0) {
-                user = users.get(0);
-            }
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeObject(rs);
-            DatabaseUtil.getInstance().closeObject(stmt);
+            user = em.find(User.class, id);
         } catch (Exception e) {
-            LOGGER.error("Get user error", e);
-            throw new UserException("Get user error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
-
         return Optional.ofNullable(user);
     }
 
-    public void save(User obj) {
-        Connection connection = DatabaseUtil.getInstance().getConnection();
+    public void save(User user) {
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
+        em.getTransaction().begin();
         try {
-            connection.setAutoCommit(false);
-            PreparedStatement statement = connection.prepareStatement(INSERT_USER);
-            statement.setString(1, obj.getUsername());
-            statement.setString(2, obj.getPassword());
-            statement.setString(3, obj.getName());
-            statement.setString(4, obj.getMobile());
-            statement.setString(5, obj.getEmail());
-            statement.setInt(6, obj.getStatus());
-            statement.executeUpdate();
-            connection.commit();
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeObject(statement);
+            em.persist(user);
+            em.getTransaction().commit();
         } catch (Exception e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            LOGGER.error("Error create user", e);
-            throw new UserException("Create user error: " + e.getMessage());
+            em.getTransaction().rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
     }
 
-    public void update(User obj) {
-        Connection connection = DatabaseUtil.getInstance().getConnection();
+    public void update(User user) {
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
+        em.getTransaction().begin();
         try {
-            connection.setAutoCommit(false);
-            PreparedStatement statement = connection.prepareStatement(UPDATE_USER);
-            statement.setString(1, obj.getName());
-            statement.setString(2, obj.getEmail());
-            statement.setString(3, obj.getMobile());
-            statement.setInt(4, obj.getStatus());
-            statement.setTimestamp(6, new Timestamp(new Date().getTime()));
-            statement.setString(5, obj.getPhoto());
-            statement.setLong(7, obj.getId());
-            statement.executeUpdate();
-            connection.commit();
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeObject(statement);
-
+            em.merge(user);
+            em.getTransaction().commit();
         } catch (Exception e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            LOGGER.error("Update user error", e);
-            throw new UserException("Update user error: " + e.getMessage());
+            em.getTransaction().rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
     }
 
     public void delete(long id) {
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
+        em.getTransaction().begin();
+        Optional<User> user = this.get(id);
+        if (!user.isPresent()) {
+            throw new UserException("Not found user with id " + id);
+        }
         try {
-            Connection connection = DatabaseUtil.getInstance().getConnection();
-            PreparedStatement statement = connection.prepareStatement(DELETE_USER);
-            statement.setLong(1, id);
-            statement.executeUpdate();
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeObject(statement);
+            em.remove(user);
+            em.getTransaction().commit();
         } catch (Exception e) {
-            LOGGER.error("Delete user error", e);
-            throw new UserException("Delete user error: " + e.getMessage());
+            em.getTransaction().rollback();
+            throw new UserException("Error delete user " + e.getMessage());
+        } finally {
+            em.close();
         }
     }
 
     public User login(String username, String password) {
         User user = null;
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
         try {
-            Connection connection = DatabaseUtil.getInstance().getConnection();
-            PreparedStatement statement = connection.prepareStatement(LOGIN);
-            statement.setString(1, username);
-            statement.setString(2, AESUtil.encrypt(password));
-            ResultSet rs = statement.executeQuery();
-            List<User> users = ResultToObject.getInstance().getData(rs, User.class);
-            if (users.size() > 0) {
+            Query query = em.createQuery("select u from User u where u.username =:username and u.password=:password", User.class);
+            query.setParameter("username", username);
+            query.setParameter("password", AESUtil.encrypt(password));
+            List<User> users = query.getResultList();
+            if (users != null && users.size() > 0) {
                 user = users.get(0);
             }
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeConnection(connection);
-            DatabaseUtil.getInstance().closeObject(statement);
         } catch (Exception e) {
             LOGGER.error("Error login", e);
         }

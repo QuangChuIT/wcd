@@ -83,9 +83,6 @@ public class UserServlet extends HttpServlet {
         response.setStatus(HttpServletResponse.SC_OK);
         BaseResponse<Object> resp;
         try {
-            Part filePart = request.getPart("file");
-            String fileName = filePart.getSubmittedFileName();
-            LOGGER.info("file name {}", fileName);
             String jsonReq = JSONConverter.readJson(request);
             CreateUserReq createUserReq = gson.fromJson(jsonReq, CreateUserReq.class);
             User user = new User();

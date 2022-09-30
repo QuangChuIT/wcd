@@ -1,38 +1,42 @@
 package com.aptech.user;
 
-import com.aptech.anotations.ColumnName;
-
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 
-public class User {
-    @ColumnName(name = "id")
+@Entity
+@Table(name = "user")
+public class User implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @ColumnName(name = "username")
+
+    @Column(name = "username", nullable = false)
     private String username;
-    @ColumnName(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
-    @ColumnName(name = "mobile")
+    @Column(name = "mobile", nullable = false)
     private String mobile;
-    @ColumnName(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
-    @ColumnName(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
-    @ColumnName(name = "created_date")
+    @Column(name = "created_date")
     private Date createdDate;
-    @ColumnName(name = "modified_date")
+    @Column(name = "modified_date")
     private Date modifiedDate;
-    @ColumnName(name = "status")
+    @Column(name = "status")
     private int status;
-    @ColumnName(name = "photo")
+    @Column(name = "photo")
     private String photo;
-    @ColumnName(name = "last_failed_login_date")
+    @Column(name = "last_failed_login_date")
     private Date lastFailedLoginDate;
-    @ColumnName(name = "last_login_date")
+    @Column(name = "last_login_date")
     private Date lastLoginDate;
-    @ColumnName(name = "lockout_date")
+    @Column(name = "lockout_date")
     private Date lockoutDate;
-    @ColumnName(name = "login_fail_count")
+    @Column(name = "login_fail_count")
     private int loginFailCount;
 
     public User() {

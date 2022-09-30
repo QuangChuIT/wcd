@@ -2,20 +2,20 @@ package com.aptech.authen;
 
 import com.aptech.user.User;
 import com.aptech.user.UserDao;
-import com.aptech.utils.AESUtil;
+import com.aptech.utils.CookieUtil;
 import com.aptech.utils.MessageUtil;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
@@ -33,11 +33,17 @@ public class LoginServlet extends HttpServlet {
         String password = req.getParameter("password");
 
         User user = UserDao.getInstance().login(userName, password);
+        HttpSession session = req.getSession();
         if (user != null) {
-            String cookieValue = userName + ";" + user.getMobile() + ";" + user.getMobile() + ";" + DATE_FORMAT.format(new Date());
-            Cookie cookie = new Cookie("wcd-token", AESUtil.encrypt(cookieValue));
-            cookie.setMaxAge(3600);
-            cookie.setDomain("localhost");
+            session.setAttribute("user", user);
+            JSONObject object = new JSONObject();
+            object.put("username", user.getUsername());
+            object.put("name", user.getName());
+            object.put("email", user.getEmail());
+            object.put("lastLoginTime", DATE_FORMAT.format(new Date()));
+            // Encode
+            String asB64 = Base64.getEncoder().encodeToString(object.toString().getBytes(StandardCharsets.UTF_8));
+            Cookie cookie = CookieUtil.createCookie("wcd-token", asB64, 3600, "localhost", false, false);
             resp.addCookie(cookie);
             resp.sendRedirect("/admin/index");
         } else {
@@ -45,6 +51,7 @@ public class LoginServlet extends HttpServlet {
             this.doGet(req, resp);
         }
     }
+
     private final static Logger LOGGER = LogManager.getLogger(LoginServlet.class);
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 }
