@@ -16,17 +16,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @WebServlet(name = "UserServlet", urlPatterns = {"/admin/users"})
 @MultipartConfig(
@@ -67,7 +64,7 @@ public class UserServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
-        Optional<User> user = UserDao.getInstance().get(userId);
+        Optional<User> user = UserDao.getInstance().getById(userId);
         BaseResponse<Object> resp;
         resp = user.<BaseResponse<Object>>map(value -> BaseResponseBuilder.of(value, request_id, null, BaseResponseBuilder.CODE_OK))
                 .orElseGet(() -> BaseResponseBuilder.of(null, request_id, null, "WCD-00000404"));
@@ -96,7 +93,7 @@ public class UserServlet extends HttpServlet {
             user.setModifiedDate(now);
             user.setLoginFailCount(0);
             user.setStatus(UserStatus.ACTIVE.getValue());
-            UserDao.getInstance().save(user);
+            UserDao.getInstance().create(user);
             resp = BaseResponseBuilder.of(null, request_id, null, BaseResponseBuilder.CODE_OK);
         } catch (Exception e) {
             resp = BaseResponseBuilder.of(null, request_id, e.getMessage(), BaseResponseBuilder.CODE_INTERNAL_SERVER_ERROR);
@@ -145,7 +142,7 @@ public class UserServlet extends HttpServlet {
     protected void showFormEdit(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
         long userId = Long.parseLong(id);
-        Optional<User> user = UserDao.getInstance().get(userId);
+        Optional<User> user = UserDao.getInstance().getById(userId);
         if (user.isPresent()) {
             request.setAttribute("user", user.get());
             request.getRequestDispatcher("/views/user/edit.jsp").forward(request, response);
@@ -158,14 +155,31 @@ public class UserServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String body = JSONConverter.readJson(req);
         LOGGER.info("Request delete " + body);
-        if (body != null && !body.equals("")) {
-            JSONObject jsonObject = new JSONObject(body);
-            LOGGER.info("Request delete " + jsonObject);
-            resp.setContentType("application/json;charset=UTF-8");
-            ServletOutputStream outputStream = resp.getOutputStream();
-            outputStream.print(jsonObject.toString());
+        resp.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+        resp.setCharacterEncoding("UTF-8");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        String request_id = UUID.randomUUID().toString();
+        BaseResponse<Object> response;
+        try {
+            if (body != null && !body.equals("")) {
+                JSONObject jsonObject = new JSONObject(body);
+                LOGGER.info("Request delete " + jsonObject);
+                JSONArray userIds = jsonObject.getJSONArray("userIds");
+                List<Long> ids = new ArrayList<>();
+                for (int i = 0; i < userIds.length(); i++) {
+                    ids.add(userIds.getLong(i));
+                }
+                UserDao.getInstance().deleteUsers(ids);
+                response = BaseResponseBuilder.of(null, request_id, null, BaseResponseBuilder.CODE_OK);
+            } else {
+                response = BaseResponseBuilder.of(null, request_id, "Invalid user id", BaseResponseBuilder.CODE_INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            response = BaseResponseBuilder.of(null, e.getMessage(), BaseResponseBuilder.CODE_INTERNAL_SERVER_ERROR);
         }
-
+        out.println(gson.toJson(response));
+        out.flush();
     }
 
     public void doUpdate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -179,7 +193,7 @@ public class UserServlet extends HttpServlet {
             String jsonReq = JSONConverter.readJson(request);
             UpdateUserReq req = gson.fromJson(jsonReq, UpdateUserReq.class);
             Long userId = req.getId();
-            User user = UserDao.getInstance().get(userId).get();
+            User user = UserDao.getInstance().getById(userId).get();
             user.setName(req.getName());
             user.setStatus(req.getStatus());
             user.setEmail(req.getEmail());

@@ -16,7 +16,7 @@
                 <button class="btn btn-primary ml-3" data-toggle="modal" data-target="#createUserModal"><i
                         class="fas fa-plus"></i> Tạo mới
                 </button>
-                <button class="btn btn-danger ml-3"><i class="fas fa-trash"></i> Xóa</button>
+                <button class="btn btn-danger ml-3" id="btnDeleteUsers"><i class="fas fa-trash"></i> Xóa</button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -115,6 +115,20 @@
                 </button>
             </div>
             <div class="modal-body edit-user" id="editUser">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true" id="confirmModal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Bạn có chắc chắn muốn xóa không</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="modal-btn-si">Đồng ý</button>
+                <button type="button" class="btn btn-primary" id="modal-btn-no">Hủy</button>
             </div>
         </div>
     </div>

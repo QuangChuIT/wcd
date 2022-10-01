@@ -1,5 +1,6 @@
 package com.aptech.user;
 
+import com.aptech.common.GenericDao;
 import com.aptech.exception.UserException;
 import com.aptech.utils.AESUtil;
 import com.aptech.utils.JPAUtil;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDao {
+public class UserDao implements GenericDao<User> {
 
     private static UserDao instance;
     private final static Logger LOGGER = LogManager.getLogger(UserDao.class);
@@ -27,7 +28,7 @@ public class UserDao {
         return instance;
     }
 
-
+    @Override
     public List<User> getAll() {
         EntityManager em = JPAUtil.getFactory().createEntityManager();
         List<User> users = new ArrayList<>();
@@ -45,7 +46,8 @@ public class UserDao {
         return users;
     }
 
-    public Optional<User> get(long id) {
+    @Override
+    public Optional<User> getById(long id) {
         EntityManager em = JPAUtil.getFactory().createEntityManager();
         User user = null;
         try {
@@ -58,7 +60,8 @@ public class UserDao {
         return Optional.ofNullable(user);
     }
 
-    public void save(User user) {
+    @Override
+    public void create(User user) {
         EntityManager em = JPAUtil.getFactory().createEntityManager();
         em.getTransaction().begin();
         try {
@@ -72,6 +75,7 @@ public class UserDao {
         }
     }
 
+    @Override
     public void update(User user) {
         EntityManager em = JPAUtil.getFactory().createEntityManager();
         em.getTransaction().begin();
@@ -86,10 +90,11 @@ public class UserDao {
         }
     }
 
+    @Override
     public void delete(long id) {
         EntityManager em = JPAUtil.getFactory().createEntityManager();
         em.getTransaction().begin();
-        Optional<User> user = this.get(id);
+        Optional<User> user = this.getById(id);
         if (!user.isPresent()) {
             throw new UserException("Not found user with id " + id);
         }
@@ -117,7 +122,26 @@ public class UserDao {
             }
         } catch (Exception e) {
             LOGGER.error("Error login", e);
+        } finally {
+            em.close();
         }
         return user;
+    }
+
+    public void deleteUsers(List<Long> ids) {
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
+        em.getTransaction().begin();
+        try {
+            Query query = em.createQuery("delete from User where id in (:ids)");
+            query.setParameter("ids", ids);
+            query.executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            LOGGER.error("Error login", e);
+            throw new UserException("Delete users error " + e.getMessage());
+        } finally {
+            em.close();
+        }
     }
 }

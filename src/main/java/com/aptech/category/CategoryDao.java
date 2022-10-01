@@ -43,7 +43,7 @@ public class CategoryDao implements GenericDao<Category> {
     }
 
     @Override
-    public void delete(Category o) {
+    public void delete(long id) {
 
     }
 

@@ -201,30 +201,36 @@ window.UserManager = {
         let req = {
             userIds: userIds
         }
-        $.ajax({
-            type: "POST",
-            data: JSON.stringify(req),
-            contentType: "application/json;charset=utf-8",
-            url: instance.userSetting.host + "?action=delete",
-            cache: false,
-            success: function (response, textStatus, xhr) {
-                console.log(response)
-                console.log(xhr.status)
-            },
-            error: function (xhr, textStatus) {
-                console.log(xhr.status)
-            }
-        })
+        if (confirm("Bạn có chắc chắn muốn xóa không ?")) {
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify(req),
+                contentType: "application/json;charset=utf-8",
+                url: instance.userSetting.host + "?action=delete",
+                cache: false,
+                success: function (response, textStatus, xhr) {
+                    if (response.error_code === 'WCD-00000000') {
+                        $.notify("Xóa người dùng thành công!", "success")
+                        instance.renderDataTable()
+                    } else {
+                        $.notify("Xóa người dùng thất bại: " + response.error_message, "error")
+                    }
+                },
+                error: function (xhr, textStatus) {
+                    console.log(xhr.status)
+                }
+            })
+        }
     }
 }
-$(document).on("click", "#btnDeleteUser", function (e) {
+$(document).on("click", "#btnDeleteUsers", function (e) {
     e.preventDefault();
     let userIds = []
     $("input:checkbox[name='userId']:checked").each(function () {
         userIds.push($(this).val())
     })
     if (userIds.length <= 0) {
-        $.notify("Chưa chọn tài khoản muốn xóa", "warning")
+        $.notify("Chưa chọn tài khoản muốn xóa", "error")
         return;
     }
     UserManager.deleteUser(userIds)

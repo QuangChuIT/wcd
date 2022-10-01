@@ -9,9 +9,9 @@ public interface GenericDao<T extends Serializable > {
 
     Optional<T> getById(long id);
 
-    void create(T o);
+    void create(T entity);
 
-    void update(T o);
+    void update(T entity);
 
-    void delete(T o);
+    void delete(long id);
 }

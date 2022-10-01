@@ -414,7 +414,6 @@
         </div>
     </div>
 </div>
-
 <!-- Bootstrap core JavaScript-->
 <script src="/assets/vendor/jquery/jquery.min.js"></script>
 <script src="<c:url value="/assets/js/jquery.tmpl.min.js"/>"></script>

@@ -3,14 +3,13 @@ package com.aptech.role;
 import com.aptech.common.AbstractEntity;
 import com.aptech.user.User;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "role")
+@Table(name = "role", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")
+})
 public class Role extends AbstractEntity<Long> {
     @Column(name = "name", nullable = false)
     private String name;
