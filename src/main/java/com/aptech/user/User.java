@@ -1,8 +1,11 @@
 package com.aptech.user;
 
+import com.aptech.role.Role;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 
 @Entity
@@ -38,6 +41,11 @@ public class User implements Serializable {
     private Date lockoutDate;
     @Column(name = "login_fail_count")
     private int loginFailCount;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private Set<Role> roles;
 
     public User() {
     }
@@ -152,5 +160,13 @@ public class User implements Serializable {
 
     public void setLoginFailCount(int loginFailCount) {
         this.loginFailCount = loginFailCount;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
