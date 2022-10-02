@@ -1,34 +1,52 @@
 package com.aptech.role;
 
-import com.aptech.common.GenericDao;
+import com.aptech.common.JpaCrudDao;
+import com.aptech.utils.JPAUtil;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class RoleDao implements GenericDao<Role> {
+public class RoleDao extends JpaCrudDao<Role, Long> {
+
+    private static RoleDao instance;
+
+    private RoleDao() {
+        super(Role.class);
+    }
+
+    public static RoleDao getInstance() {
+        if (instance == null) {
+            instance = new RoleDao();
+        }
+        return instance;
+    }
 
     @Override
     public List<Role> getAll() {
-        return null;
+        EntityManager em = JPAUtil.getFactory().createEntityManager();
+        List<Role> roles = new ArrayList<>();
+        try {
+            Query query = em.createQuery("select r from Role r", Role.class);
+            roles = query.getResultList();
+            if (roles == null) {
+                roles = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+        return roles;
     }
 
-    @Override
-    public Optional<Role> getById(long id) {
-        return Optional.empty();
-    }
-
-    @Override
-    public void create(Role role) {
-
-    }
-
-    @Override
-    public void update(Role role) {
-
-    }
-
-    @Override
-    public void delete(long id) {
-
+    public RoleDto convertToDTO(Role role) {
+        RoleDto roleDto = new RoleDto();
+        roleDto.setId(roleDto.getId());
+        roleDto.setName(role.getName());
+        roleDto.setDescription(role.getDescription());
+        roleDto.setDetail(role.getDetail());
+        return roleDto;
     }
 }

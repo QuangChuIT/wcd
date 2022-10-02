@@ -1,7 +1,11 @@
 package com.aptech.user;
 
-import com.aptech.common.GenericDao;
+import com.aptech.common.JpaCrudDao;
 import com.aptech.exception.UserException;
+import com.aptech.role.Role;
+import com.aptech.role.RoleDao;
+import com.aptech.role.RoleDto;
+import com.aptech.user.payload.UserDto;
 import com.aptech.utils.AESUtil;
 import com.aptech.utils.JPAUtil;
 import org.apache.logging.log4j.LogManager;
@@ -11,14 +15,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class UserDao implements GenericDao<User> {
+public class UserDao extends JpaCrudDao<User, Long> {
 
     private static UserDao instance;
     private final static Logger LOGGER = LogManager.getLogger(UserDao.class);
 
     private UserDao() {
+        super(User.class);
     }
 
     public static UserDao getInstance() {
@@ -28,7 +34,6 @@ public class UserDao implements GenericDao<User> {
         return instance;
     }
 
-    @Override
     public List<User> getAll() {
         EntityManager em = JPAUtil.getFactory().createEntityManager();
         List<User> users = new ArrayList<>();
@@ -46,67 +51,34 @@ public class UserDao implements GenericDao<User> {
         return users;
     }
 
-    @Override
-    public Optional<User> getById(long id) {
-        EntityManager em = JPAUtil.getFactory().createEntityManager();
-        User user = null;
-        try {
-            user = em.find(User.class, id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
-        return Optional.ofNullable(user);
+    public List<UserDto> getUsers() {
+        List<User> users = this.getAll();
+        return users.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    @Override
-    public void create(User user) {
-        EntityManager em = JPAUtil.getFactory().createEntityManager();
-        em.getTransaction().begin();
-        try {
-            em.persist(user);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
+    public UserDto convertToDTO(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
+        userDto.setMobile(user.getMobile());
+        userDto.setName(user.getName());
+        userDto.setStatus(user.getStatus());
+        userDto.setModifiedDate(user.getModifiedDate());
+        userDto.setCreatedDate(user.getCreatedDate());
+        userDto.setLockoutDate(user.getLockoutDate());
+        userDto.setLastLoginDate(user.getLastLoginDate());
+        userDto.setPhoto(user.getPhoto());
+        userDto.setLastFailedLoginDate(user.getLastFailedLoginDate());
+        List<RoleDto> roleDtos = new ArrayList<>();
+        Set<Role> roles = user.getRoles();
+        if (roles.size() > 0) {
+            roles.forEach(role -> {
+                roleDtos.add(RoleDao.getInstance().convertToDTO(role));
+            });
         }
-    }
-
-    @Override
-    public void update(User user) {
-        EntityManager em = JPAUtil.getFactory().createEntityManager();
-        em.getTransaction().begin();
-        try {
-            em.merge(user);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public void delete(long id) {
-        EntityManager em = JPAUtil.getFactory().createEntityManager();
-        em.getTransaction().begin();
-        Optional<User> user = this.getById(id);
-        if (!user.isPresent()) {
-            throw new UserException("Not found user with id " + id);
-        }
-        try {
-            em.remove(user);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw new UserException("Error delete user " + e.getMessage());
-        } finally {
-            em.close();
-        }
+        userDto.setRoles(roleDtos);
+        return userDto;
     }
 
     public User login(String username, String password) {

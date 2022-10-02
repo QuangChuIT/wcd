@@ -5,6 +5,7 @@ import com.aptech.common.BaseResponse;
 import com.aptech.common.BaseResponseBuilder;
 import com.aptech.user.payload.CreateUserReq;
 import com.aptech.user.payload.UpdateUserReq;
+import com.aptech.user.payload.UserDto;
 import com.aptech.utils.AESUtil;
 import com.aptech.utils.JSONConverter;
 import com.aptech.utils.UserStatus;
@@ -48,8 +49,6 @@ public class UserServlet extends HttpServlet {
             this.doDelete(req, resp);
         } else if (action.equals("list")) {
             this.doGetUsers(req, resp);
-        } else if (action.equals("getList")) {
-            this.doGetAllUsers(req, resp);
         } else if (action.equals("create")) {
             this.doCreateUser(req, resp);
         } else if (action.equals("detail")) {
@@ -102,20 +101,7 @@ public class UserServlet extends HttpServlet {
         out.flush();
     }
 
-    protected void doGetAllUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<User> users = UserDao.getInstance().getAll();
-        PrintWriter out = response.getWriter();
-        String json = gson.toJson(users);
-        System.out.println(json);
-        response.setContentType("application/json;charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        out.println(json);
-        out.flush();
-    }
-
     protected void doGetList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<User> users = UserDao.getInstance().getAll();
-        request.setAttribute("users", users);
         request.getRequestDispatcher("/views/user/users.jsp").forward(request, response);
     }
 
@@ -126,8 +112,8 @@ public class UserServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         try {
-            List<User> users = UserDao.getInstance().getAll();
-            BaseResponse<List<User>> resp = BaseResponseBuilder.of(users, request_id, null, BaseResponseBuilder.CODE_OK);
+            List<UserDto> users = UserDao.getInstance().getUsers();
+            BaseResponse<List<UserDto>> resp = BaseResponseBuilder.of(users, request_id, null, BaseResponseBuilder.CODE_OK);
             String json = gson.toJson(resp);
             out.println(json);
             out.flush();

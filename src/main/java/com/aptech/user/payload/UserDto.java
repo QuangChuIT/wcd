@@ -1,51 +1,33 @@
-package com.aptech.user;
+package com.aptech.user.payload;
 
-import com.aptech.common.AbstractEntity;
-import com.aptech.role.Role;
+import com.aptech.role.RoleDto;
 
-import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
-
-@Entity
-@Table(name = "user", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"username", "email", "mobile"}),
-        @UniqueConstraint(columnNames = {"username"}),
-        @UniqueConstraint(columnNames = {"email"}),
-        @UniqueConstraint(columnNames = {"mobile"})
-})
-public class User extends AbstractEntity<Long> {
-
-    @Column(name = "username", nullable = false)
+public class UserDto implements Serializable {
+    private long id;
     private String username;
-    @Column(name = "password", nullable = false)
-    private String password;
-    @Column(name = "mobile", nullable = false)
     private String mobile;
-    @Column(name = "email", nullable = false)
     private String email;
-    @Column(name = "name", nullable = false)
     private String name;
-    @Column(name = "status")
     private int status;
-    @Column(name = "photo")
     private String photo;
-    @Column(name = "last_failed_login_date")
     private Date lastFailedLoginDate;
-    @Column(name = "last_login_date")
     private Date lastLoginDate;
-    @Column(name = "lockout_date")
     private Date lockoutDate;
-    @Column(name = "login_fail_count")
     private int loginFailCount;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<Role> roles;
+    private List<RoleDto> roles;
+    private Date createdDate;
+    private Date modifiedDate;
 
-    public User() {
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -54,14 +36,6 @@ public class User extends AbstractEntity<Long> {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getMobile() {
@@ -136,11 +110,27 @@ public class User extends AbstractEntity<Long> {
         this.loginFailCount = loginFailCount;
     }
 
-    public Set<Role> getRoles() {
+    public List<RoleDto> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(List<RoleDto> roles) {
         this.roles = roles;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
     }
 }
