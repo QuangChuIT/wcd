@@ -59,7 +59,7 @@
                                         </c:choose>
                                     </td>
                                     <td><fmt:formatDate value="${product.createdDate}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
-                                    <td></td>
+                                    <td><a href="<c:url value="/admin/carts?action=addToCart&productId=${product.id}"/>" class="btn btn-primary btn-sm">Đặt hàng</a></td>
                                 </tr>
                             </c:forEach>
                         </tbody>
