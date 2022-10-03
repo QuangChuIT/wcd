@@ -9,6 +9,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "product")
 public class Product extends AbstractEntity<Long> {
+
     @Column(name = "title", nullable = false)
     private String title;
     @Column(name = "price", nullable = false)
@@ -21,8 +22,8 @@ public class Product extends AbstractEntity<Long> {
     private boolean status;
     @Column(name = "slug")
     private String slug;
-    @Column(name = "sumary")
-    private String sumary = "";
+    @Column(name = "summary")
+    private String summary = "";
     @Column(name = "photo")
     private String photo;
 
@@ -74,12 +75,12 @@ public class Product extends AbstractEntity<Long> {
         this.slug = slug;
     }
 
-    public String getSumary() {
-        return sumary;
+    public String getSummary() {
+        return summary;
     }
 
-    public void setSumary(String sumary) {
-        this.sumary = sumary;
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
     public String getPhoto() {

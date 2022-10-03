@@ -16,7 +16,7 @@ public class AbstractEntity<Long extends Serializable> implements Serializable {
 
     @Column(name = "created_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date createdDate;
-    @Column(name = "created_date", insertable = false, updatable = false)
+    @Column(name = "modified_date", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @CreationTimestamp
     private Date modifiedDate;
 

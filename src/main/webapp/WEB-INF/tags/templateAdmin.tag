@@ -20,7 +20,7 @@
             rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="/assets/css/sb-admin-2.css" rel="stylesheet">
+    <link href="<c:url value="/assets/css/sb-admin-2.css"/>" rel="stylesheet">
 
     <!-- Custom styles for this page -->
     <link href="/assets/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
@@ -126,7 +126,7 @@
 
         <!-- Nav Item - Charts -->
         <li class="nav-item">
-            <a class="nav-link" href="charts.html">
+            <a class="nav-link" href="<c:url value="/admin/products"/>">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>Quản lý sản phẩm</span></a>
         </li>
